@@ -1,0 +1,57 @@
+#! /bin/bash
+
+wget http://wordpress.org/latest.tar.gz
+
+echo ""
+echo "********************************"
+echo "***** WORDPRESS DOWNLOADED *****"
+echo "********************************"
+echo ""
+
+tar zxf wordpress-*.tar.gz
+
+echo ""
+echo "********************************"
+echo "***** WORDPRESS  EXTRACTED *****"
+echo "********************************"
+echo ""
+
+rm wordpress-*.tar.gz
+
+mv wordpress/* ./
+
+rmdir wordpress
+
+read -r -p "What is your MySQL Database Hostname? " mysqlhost
+
+if [ -z $mysqlhost ] ; then
+  mysqlhost=localhost
+fi
+
+read -r -p "What is your MySQL Database Name? " mysqldb
+read -r -p "What is your MySQL Database Username? " mysqluser
+read -rs -p "What is your MySQL Database Password? " mysqlpass
+
+sed -e "s/localhost/"$mysqlhost"/" -e "s/putyourdbnamehere/"$mysqldb"/" -e "s/usernamehere/"$mysqluser"/" -e "s/yourpasswordhere/"$mysqlpass"/" wp-config-sample.php > wp-config.php
+echo ""
+
+cat << EOF > .htaccess
+# BEGIN WordPress
+
+RewriteEngine On
+RewriteBase /
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+
+# END WordPress
+
+AddHandler php5-script .php
+EOF
+
+echo ""
+echo "*******************************"
+echo "***** WORDPRESS COMPLETED *****"
+echo "*******************************"
+echo ""
+echo "Go to installation URL to finalize."
